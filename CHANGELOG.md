@@ -1,0 +1,749 @@
+# Changelog
+All notable changes to the MeshSync package will be documented in this file.
+
+## [0.17.3-preview] - 2023-06-12
+
+### Added
+* feat: auto installation for Blender 3.4
+* internal: add a field to skip texture imports
+
+### Changed
+* change: send all instanced meshes at once to avoid instance display issues
+* change: put any created child objects on the same layer as the server 
+* opt: make texture import faster and ensure texture is still loaded when skipping import 
+
+### Fixed
+* fix: warnings when drawing "Default Shader" object field
+* internal-fix: incorrect path when opening an asset with a DCC Tool 
+
+## [0.17.2-preview] - 2023-05-11
+
+### Added
+* feat: add IsLiveEditing API to check whether live editing is active 
+* feat: add DefaultShader field to set the default shader instead of the default of each RP 
+
+### Fixed
+* fix: prevent overwriting materials when OverwriteExportedMaterials is false
+* fix: keep track of RenderTextures and release them when the server is destroyed. 
+* fix: transform fixes for nested instances 
+* fix: Fix for baking smoothness to albedo alpha. 
+* fix: add empty transforms to the list of objects for making instances
+* fix: toggle foldout state when clicking the label in the inspector UI
+* fix: update the material of instanced meshes after assigning to the slot in MeshSyncServer 
+
+## [0.17.1-preview] - 2023-02-08
+
+### Changed
+* doc: fixed release dates
+
+## [0.17.0-preview] - 2023-02-06
+
+### Added
+* feat: Material baking AO
+* feat: add "Overwrite material properties" for importing 
+* feat: orthographic size support for camera.
+
+### Changed
+* deps: use com.unity.film-internal-utilities@0.17.0-preview
+
+### Fixed
+
+* fix: reimport textures after changing importer settings
+* fix: copy the scale/visibility of instances based on the parent/original respectively
+* fix: Smoothness was not inverting roughness for textures. Fix for glass shader 
+* fix: NaN in tangents and bitangents when vertices are too close to each other 
+* fix: set parallax slider to min value when using Built-in Render Pipeline or URP 
+* fix: fix for crashes where instantiated objects are not meshes and not part of the scene
+* fix: set Glossiness to 0.5 when value is not provided by material data 
+* fix: warnings in Unity 2020 projects using HDRP
+* fix: Blender Uninstall script
+
+## [0.16.4-preview] - 2022-12-09
+
+### Changed
+* deps: use com.unity.film-internal-utilities@0.16.4-preview
+
+## [0.16.3-preview] - 2022-12-09
+
+### Changed
+* deps: use com.unity.film-internal-utilities@0.16.3-preview
+
+### Fixed
+* fix: keep currentSessionId when switching PlayMode
+* fix: ensure calling analytics API 
+* fix: remove unused meta file
+
+## [0.16.2-preview] - 2022-12-02
+
+### Added
+* doc: add the Key Frames documentation of SceneCache
+
+### Changed
+* deps: use com.unity.film-internal-utilities@0.16.2-preview
+
+## [0.16.1-preview] - 2022-11-25
+
+### Fixed
+* fix: regenerate the guid of files that conflict with files in StreamingImageSequence package 
+
+## [0.16.0-preview] - 2022-11-25
+
+### Added
+* feat: key frame adjustments for SceneCache
+* feat: material support 
+* feat: send the server's session id and let clients read it to check if the server has changed.
+* feat: add a way to force delete all children in the next sync session without user prompt. 
+* feat: add a way to trigger a script callback from Unity
+
+### Changed
+* deps: update dependency to com.unity.film-internal-utilities@0.16.1-preview
+* change: output logs of the Editor Server
+
+### Fixed
+* fix: make all object types (incl. lights) instantiable for geometry nodes
+* fix: server hanging on exit, after updating package version 
+* fix: apply changes of ZUpCorrectionMode 
+* fix: handle zero keys when comparing two curves of SceneCachePlayableAsset
+* fix: legacy non-versioned SceneCache was considered as versioned
+* fix: clear synced meshes if they are empty 
+* fix: fix for crashing debugger when references are not set
+
+### Removed
+* remove: remove code to import obsolete SceneCachePlayableAsset prior to 0.13.0-preview
+* remove: LimitedAnimation option in SceneCachePlayer
+* remove: the autoplay of SceneCache 
+
+
+## [0.15.1-preview] - 2022-10-17
+
+### Added
+* internal: MeshSync Analytics 
+* doc: add EditorServer section in ProjectSettings page 
+
+### Fixed
+* fix: enable the restart notifcation again after updating MeshSync package 
+* fix: geometry changes were not reflected when HDRP pathtracing is on 
+* fix: moving sc files made the paths invalid
+
+## [0.15.0-preview] - 2022-09-28
+
+### Added
+* feat: Unity Editor server for executing editor commands 
+* feat: add a button to show plugins folder in Preferences
+* feat: add Editor server config in Project Settings page for AutoSetup from DCC tool 
+* feat: add support to install plugin for Blender 3.3 
+* feat: accept port number of scene server via EditorCommand buffer for AutoSetup from DCC tool 
+* doc: add backward compatibility section to the SceneCache documentation 
+
+### Changed
+* deps: use com.unity.film-internal-utilities@0.16.0-preview 
+* doc: updates on BidirectionalSync, GeometryNodes, and MeshSyncServer pages 
+
+### Fixed
+* fix: show if the current version does not support a particular DCC tool 
+* fix: auto installation of Blender plugin @0.14.x-preview
+* fix: disable applicable SceneCache GameObjects when muting SceneCacheTrack 
+* fix: scale instance transforms with meshsync scale factor to ensure correct positioning 
+
+## [0.14.5-preview] - 2022-09-03
+
+### Changed
+* doc: update the documentation on Bidirectional Sync 
+
+## [0.14.4-preview] - 2022-09-03
+
+### Changed
+* ui: updating UI texts under the Instances section in MeshSyncServer 
+
+### Fixed
+* fix: clear properties if the client does not send any 
+* fix: find DCC plugins in "Plugins" folder as well 
+* fix: show if a DCC tool is not supported in the Preferences window
+
+## [0.14.3-preview] - 2022-08-24
+
+### Fixed
+* fix: rebuild plugin for Mac Silicon 
+* fix: delete mesh renderer and filter if it was there from the curves as meshes setting 
+
+## [0.14.2-preview] - 2022-07-28
+
+### Added
+* feat: show dialog after changing InstanceHandling to warn against lost changes 
+
+### Changed
+* change: Give user the option to delete or stash previously imported objects when the session changes.
+
+### Fixed
+* fix: don't use slider if the range is too large.
+* fix: Blender installation script due to changes in the plugin structure 
+
+
+## [0.14.1-preview] - 2022-07-26
+
+### Fixed
+* plugin-fix: fix compile error when compiling MeshSyncDCCPlugins on Mac/Linux
+
+## [0.14.0-preview] - 2022-07-22
+
+### Added
+* feat: preparation to add Unity->DCC Tools communication
+* feat: add support to detect and install plugin for Maya 2023 
+* feat: add support to detect and install plugin for Blender 3.2 
+* feat: add support to detect and install plugin for 3ds Max 2022/2023 
+
+### Changed
+* deps: use com.unity.sharp-zip-lib@1.3.2-preview
+
+### Fixed
+* fix: make MeshSyncServer work in both standalone platforms and editor 
+* fix: browse files instead of folders when adding DCC Tools on MacOS 
+
+### Removed
+* drop support for Blender 2.83
+
+## [0.13.2-preview] - 2022-07-04
+
+### Changed
+* opt: cache plugin version string
+
+### Fixed
+* fix: automatically restart server only if the component and gameobject is active
+* fix: exclude mscore from Android and iOS standalone target (#689)
+
+## [0.13.1-preview] - 2022-05-18
+
+### Added
+* feat: light probes support for instance rendering
+
+### Changed
+* deps: use com.unity.film-internal-utilities@0.15.1-preview 
+
+## [0.13.0-preview] - 2022-04-26
+
+### Added
+* feat: Instance rendering 
+* doc: Geometry Nodes documentation
+
+### Changed
+* change: make some classes/functions/members to internal 
+
+### Fixed
+* plugin-fix: support Mac OSX starting from 10.12
+
+## [0.12.9-preview] - 2022-04-14
+
+### Added
+* doc: mention support for installing Blender 3.0 and 3.1 plugins
+* doc: mention support for Mac Silicon 
+
+### Changed
+* deps: use com.unity.film-internal-utilities@0.14.2-preview
+* doc: update the documentation of SceneCachePlayer
+* doc: update the documentation of SceneCache in Timeline
+
+### Fixed
+* fix: check if a record doesn't have Mesh before assigning bounds/blendShape 
+* fix: curves of SceneCache were always extracted
+
+### Removed
+* doc: remove the section on Animation Tweaks
+
+## [0.12.8-preview] - 2022-04-08
+
+### Fixed
+* fix: build errors 
+
+## [0.12.7-preview] - 2022-04-06
+
+### Changed
+* deps: use com.unity.film-internal-utilities@0.14.1-preview 
+
+### Fixed
+* fix: ensure the correct clip is the one setting SceneCache timing 
+
+## [0.12.6-preview] - 2022-04-01
+
+### Changed
+* change: only update the duration of SceneCachePlayableAsset when creating a new clip
+
+### Fixed
+* fix: the left SceneCachePlayableAsset clip after split was not updated 
+* fix: copy LimitedAnimation values properly to duplicated SceneCachePlayableAsset
+* fix: importing previous version of LimitedAnimation did not work
+
+
+## [0.12.5-preview] - 2022-03-23
+
+### Added
+* feat: add an option in SceneCacheTrack to activate SceneCachePlayer objects automatically
+
+### Fixed
+* fix: build error caused by resetting the animation time of SceneCaache
+* fix: null check before moving SceneCachePlayableAsset to a track
+* fix: prevent cloning a SceneCachePlayableAsset from reinitializing the clip
+* fix: keep active SceneCache object to active when it is referred in multiple tracks
+ 
+## [0.12.4-preview] - 2022-03-22
+
+### Fixed
+* fix: use the local time of SceneCachePlayableAsset clip instead of director time
+
+## [0.12.3-preview] - 2022-03-19
+
+### Fixed
+* fix: the performance of SceneCache in Timeline by not reloading every time
+
+## [0.12.2-preview] - 2022-03-19
+
+### Fixed
+* fix: keep SceneCache objects active when clicking pause in TimelineWindow
+
+## [0.12.1-preview] - 2022-03-18
+
+### Added
+* feat: show SceneCachePlayer basic info in the inspector
+* feat: add extrapolation capabilities for SceneCachePlayableAsset
+* feat: override LimitedAnimation in SceneCachePlayableAsset
+
+### Changed
+* change: the default frames to hold for Limited Animation to 2
+
+### Fixed
+* fix: set the in and out tangent of the keys of SceneCachePlayableAsset
+* fix: properly create SceneCachePlayableAsset clips when the SceneCachePlayer object is disabled 
+* fix: clamp frameOffset after setting num frames to hold for limited animatio
+* fix: hide fields in the inspector SceneCachePlayableAsset for invalid SceneCache
+
+## [0.12.0-preview] - 2022-03-16
+
+### Added
+* feat: limited animation settings for SceneCachePlayer
+* feat: add plugin installation support for Blender 3.1
+* feat: Mac Silicon support (experimental)
+
+### Fixed
+* fix: prevent setting time to 0 during OnEnable() for SceneCachePlayer
+* fix: non-material assets of SceneCachePlayer were not imported properly 
+
+### Changed
+* turn the time/frame/interpolation settings in SceneCachePlayer into PlaybackMode
+* replace SnapToFrame property in SceneCachePlayableAsset with PlaybackMode in SceneCachePlayer directly
+* change the behaviour of resizing SceneCachePlayableAsset to maintain scale by default 
+
+### Removed
+* remove: preload setting in SceneCachePlayer
+* remove: Animation Tweak Settings in MeshSyncServer and SceneCachePlayer
+* remove: BaseFrame property in SceneCachePlayer 
+
+## [0.11.0-preview] - 2022-02-01
+
+### Added
+* feat: support for installing Blender 3.0.x plugin
+
+### Changed
+* api: change OnPostRecvMessageCallback in MeshSyncServer to a public delegate
+* deps: change dependency to com.unity.film-internal-utilities@0.13.0-preview 
+
+### Removed
+* remove: obsolete code for deserializing old versions MeshSyncProjectSettings
+
+## [0.10.2-preview] - 2021-12-20
+
+### Fixed
+* fix: the material list of SceneCache was not properly updated after edit 
+* fix: build error caused by FindDefaultMaterial() 
+* chore: ignore Scripts~ folder when making the package 
+
+## [0.10.1-preview] - 2021-11-17
+
+### Added
+* doc: add a section about SceneCache import settings
+
+### Changed
+* doc: update the documentation of MeshSync components (MeshSyncServer, SceneCachePlayer)
+* doc: update ProjectSettings documentation
+
+### Fixed
+* fix: validate the asset folder of MeshSyncServer component
+* fix: null check when changing an object's material in the Scene view
+
+## [0.10.0-preview] - 2021-11-10
+
+### Added
+* feat: search materials based on MaterialSearchMode settings for MeshSyncServer and SceneCachePlayer
+* feat: add a custom inspector for SceneCache files under Assets folder to set material creation settings 
+* feat: override material creation settings for SceneCachePlayer when the assigned SceneCache file is under Assets folder
+* feat: allow enabling/disabling the creation and update of Lights and Cameras objects for MeshSyncServer and SceneCachePlayer
+* feat: add a checkbox in ProjectSettings to set the default material creation settings
+* feat: add options in ProjectSettings to set the default setting to use physical camera params 
+* feat: add a button to reset MeshSync configs in ProjectSettings 
+* api: open MeshSyncPlayer class to public
+* api: add a callback in MeshSyncServer that is called after receiving data 
+* api: open SceneCachePlayer to public 
+* api: add a public API to force update SceneCachePlayer
+
+### Changed
+* deps: update dependency to com.unity.film-internal-utilities@0.12.2-preview
+* ui: indent "Update Mesh Colliders" setting in ProjectSettings
+
+### Fixed
+* fix: try to use existing animationController asset for SceneCache if possible
+
+### Removed
+* removed plugin installation support for Maya 2017 and 3ds Max 2017
+
+## [0.9.3-preview] - 2021-10-20
+
+### Changed
+* deps: update to use com.unity.sharp-zip-lib@1.2.2-preview.2
+* deps: update dependency to com.unity.film-internal-utilities@0.11.1-preview 
+* doc: update SceneCachePlayableAsset documentation
+
+### Fixed
+* fix: prioritize files under "Library/PackageCache/*" for installing DCC Plugins (#444)
+* fix: retain previous GameObjects if applicable when reloading SceneCache
+* fix: previously manually added children should not be saved along as prefab when reloading SceneCache
+* fix: choose the correct shader for default materials on URP projects 
+* fix: set light values correctly on HDRP projects
+* fix errors when dragging clips with SceneCachePlayableAsset to another track
+* fix the incorrect extra addition of curve key when dragging a folder to SceneCacheTrack
+
+## [0.9.2-preview] - 2021-10-07
+
+### Fixed
+* fix: make reloading SceneCache work properly again 
+* fix: properly normalize the paths inside SceneCachePlayer 
+
+## [0.9.1-preview] - 2021-09-15
+
+### Fixed
+* fix: automatic plugin installation 
+
+## [0.9.0-preview] - 2021-09-14
+
+### Added
+* feat: support automatic installation for Maya 2022 and 3ds Max 2021 
+* feat: add an option in SceneCachePlayableAsset to snap to nearest frame
+* feat: add an option in ProjectSettings to set the default SnapToFrame behaviour 
+
+### Changed
+* deps: update dependencies to com.unity.film-internal-utilities@0.11.0-preview 
+* opt: record instance modification if there is an actual change for SceneCachePlayer
+* opt: disable serialization temporarily when creating SceneCache for the first time 
+
+### Fixed
+* fix: ensure SceneCache prefab modifications are saved after creating 
+
+## [0.8.4-preview] - 2021-09-02
+
+### Changed
+* deps: update dependencies to com.unity.film-internal-utilities@0.10.2-preview 
+* opt: optimize SceneCache inspector by doing BeginChangeCheck() per property
+
+## [0.8.3-preview] - 2021-07-21
+
+### Fixed
+* SceneCache not playing properly when started from non-zero time
+* Ensure error and warning logs appear for SceneCachePlayer 
+
+## [0.8.2-preview] - 2021-07-14
+
+### Fixed
+* doc: various documentation fixes
+
+## [0.8.1-preview] - 2021-07-12
+
+### Changed
+* convert changelog format to semantics versioning 
+* doc: update all English documentations
+
+### Removed
+* remove plugin auto-installation for Blender 2.79 
+* doc: remove Japanese translation inside the package. (Moved to the doc official site)
+* doc: remove Japanese readme page 
+
+## [0.8.0-preview] - 2021-07-02
+
+### Added
+* support plugin auto-installation of Blender 2.92 and 2.93
+* plugin: move class macro from MeshSyncDCCPlugins 
+
+### Changed
+* better error messages when the auto-installation of  DCC plugin has failed
+* use com.unity.film-internal-utilities@0.10.1-preview
+* plugin: include &lt;string&gt; in ClientSettings.h 
+* plugin: separate msAsyncSceneExporter into three files. 
+
+### Fixed
+* fix warnings when using Timeline 1.6.x 
+
+### Removed
+* plugin: remove noncopyable
+
+
+## [0.7.2-preview] - 2021-03-22
+
+### Changed
+* deps: use com.unity.film-internal-utilities@0.8.4-preview
+
+### Fixed
+* fix errors when installing Blender plugin from a project which has space in its path
+* stop copying zip files unnecessarily when installing a supported DCC plugin 
+
+## [0.7.1-preview] - 2021-02-03
+
+### Fixed
+* fix errors when copying DCC Plugins after installing MeshSyncDCCPlugins 
+
+## [0.7.0-preview] - 2021-02-03
+
+### Added
+* support SceneCachePlayer in Timeline 
+* AnimationCurve editing of SceneCachePlayableAsset in Timeline 
+* add buttons to set the curve of SceneCachePlayableAsset to linear or reset it to the original values
+
+### Changed
+* install DCC plugin from MeshSyncDCCPlugin package, instead of from Github
+* apply animation tweaks of SceneCachePlayer directly without clicking Apply button 
+* deps: replace dependency from com.unity.anime-toolbox to com.unity.film-internal-utilities
+* plugin: separate ClientSettings from msClient in the plugin code 
+* doc: separate the use of SceneCache in Timeline to its own doc and add curves section 
+
+### Fixed
+* fix the installation of Blender plugin on Mac 
+
+## [0.6.1-preview] - 2020-12-16
+
+### Fixed
+* add missing DCC install scripts
+
+
+## [0.6.0-preview] - 2020-12-15
+
+### Added
+* find Blender 2.91 in default locations
+
+### Changed
+* include module dependencies in package dependencies 
+
+### Fixed
+* create the asset folder before it's required instead of before updating the scene (#306)
+* fix inaccurate internal path of SceneCachePlayer after copying to StreamingAssets
+
+## [0.5.5-preview] - 2020-12-03
+
+### Changed
+* use the SceneCache path specified in ProjectSettings for the path of SceneCachePlayer resources
+* change the default generated resources path for SceneCache  
+* disable logging by default 
+
+### Fixed
+* record property modification for SceneCachePlayer and MeshSyncServer prefabs, and support undo
+* store the correct version of installed MeshSyncDCCPlugin
+
+## [0.5.4-preview] - 2020-11-25
+
+### Fixed
+* plugin: add MeshSyncConstants implementation to fix undefined symbol errors 
+
+## [0.5.3-preview] - 2020-11-20
+
+### Changed
+* plugin: update the source of ISPC library and update to use ISPC 1.14.1
+
+## [0.5.2-preview] - 2020-11-19
+
+### Changed
+* plugin: remove "-Wl,--no-undefined" linker flag from MeshUtils plugin library
+
+## [0.5.1-preview] - 2020-11-18
+
+### Changed
+* plugin: make plugin project dependencies explicit and remove msEnableZSTD preprocessor directive
+
+## [0.5.0-preview] - 2020-11-17
+
+### Added
+* add a button to launch DCC tool in the Preferences page 
+* notify users to restart Unity after upgrading MeshSync for Unity 2020.2+
+
+### Changed
+* update Preferences doc 
+* deps: use com.unity.anime-toolbox@0.2.0-preview
+
+### Fixed
+* fix misleading plugin installation info for multiple DCC Tools which have the same major version
+* fix Blender plugin installation on Mac OSX
+
+## [0.4.0-preview] - 2020-09-29
+
+### Added
+* add support for Blender 2.90
+* enable the setting of the output path of Scene Cache assets
+* select/load a new scene cache file via the inspector of ScenePlayerCache
+* reload scene cache file via the inspector of ScenePlayerCache 
+* reload/refresh multiple SceneCachePlayer using their original SceneCache file paths 
+
+### Changed
+* split ProjectSettings to Server tab and SceneCache tab
+* change the layout of the GUI to copy scene cache to StreamingAssets for SceneCachePlayer
+* move DCCTool Settings to Preferences (User Settings)
+* refactor: refactored the initialization code of SceneCachePlayer
+* doc: update doc about Project Settings, Preferences, and SceneCache 
+
+## [0.3.4-preview] - 2020-09-09
+
+### Fixed
+* fix errors when creating SceneCachePlayer 
+
+## [0.3.3-preview] - 2020-09-08
+
+### Fixed
+* plugin: insufficient number of mesh refiner attributes (causing crash when an object has 8 UV sets)
+
+## [0.3.2-preview] - 2020-09-07
+
+### Changed
+* plugin: cleanup the dependencies of MeshSync plugin library code  
+
+### Fixed
+* update the version of the required MeshSyncDCCPlugins 
+
+
+## [0.3.1-preview] - 2020-09-04
+
+### Changed
+* plugin: major plugin code refactoring to reduce dependencies and make used types more explicit 
+
+## [0.3.0-preview] - 2020-09-03
+
+### Added
+* core multiple UV support
+* Set DetailMap Albedo and Secondary UV properties of StandardMaterial 
+
+### Changed
+* plugin: use bit shifting and masking for flag structures instead of using bitfields
+* plugin: organize the source code of cmake-built project by folder 
+* chore: configure Yamato setting to target 2019.4, and add a job to build docs 
+* doc: update package installation steps, esp. for 2020.1 
+
+## [0.2.5-preview] - 2020-08-31
+
+### Fixed
+* fix compile error when targeting Android platform
+
+## [0.2.4-preview] - 2020-07-28
+
+### Fixed
+* fix errors when building app build
+
+## [0.2.3-preview] - 2020-07-08
+
+### Fixed
+* fix bug in preventing DNS rebinding
+* fix broken links in docs and package warnings
+
+
+## [0.2.2-preview] - 2020-07-03
+
+### Fixed
+* fix the prevention of access using DNS rebinding
+
+## [0.2.1-preview] - 2020-07-02
+
+### Changed
+* Update latest known MeshSyncDCCPlugins version to 0.2.0-preview
+* various polishes
+* doc: Add installation steps for Unity 2020 in the top readme
+
+### Fixed
+* fix a bug in ProjectSettings when switching tab
+* fix the prevention of server root path traversal 
+* fix the prevention of public access to the server by default 
+
+## [0.2.0-preview] - 2020-06-17
+
+### Added
+* add Project Settings to configure MeshSync objects and DCC Tools integrations
+* add DCC Tools integration support for Maya 2017-2020
+* add DCC Tools integration support for 3ds Max 2017-2020
+* add DCC Tools integration support for Blender 2.79, 2.80, 2.81, 2.82, 2.83
+* doc: add documentation about Project Settings
+* deps: use com.unity.sharp-zip-lib
+
+
+## [0.1.0-preview] - 2020-04-16
+
+### Added
+* add a menu item to download DCC plugins
+
+### Changed
+* plugin: change plugin build configuration to Release from MinSizeRel
+* doc: update links to MeshSyncDCCPlugins
+
+## [0.0.3-preview] - 2020-03-24
+
+### Added
+* doc: add Linux section for building plugins
+* doc: add a separate doc page for building zstd
+
+### Changed
+* plugin: prebuilding zstd on Mac and Linux
+* plugin: update zstd library on Windows to 1.4.4
+* plugin: use Unicode for building plugins
+* doc: update plugin build steps for Windows and Mac
+
+### Fixed
+* fix: compile errors on Linux
+
+## [0.0.2-preview.2] - 2020-03-17
+
+### Fixed
+* fix pluginVersion warning
+
+## [0.0.2-preview.1] - 2020-03-16
+
+### Changed
+* Removing unused meta files	
+* doc: Updating img tag to MD
+
+## [0.0.2-preview] - 2020-03-13
+
+### Changed
+* plugin: Add additional Windows dependencies directly in Poco_LIBRARIES	
+* doc: Specify the version of Poco and zstd used. Also some other minor updates
+
+### Fixed
+* Add missing Tests.meta
+* doc: Fix broken links
+
+
+## [0.0.1-preview.3] - 2020-03-10
+
+### Fixed
+* plugin: fix script to build plugin
+
+## [0.0.1-preview.2] - 2020-03-06
+
+### Added
+* server manual start 
+
+
+### Fixed
+* fix the deployment of MeshSync's streaming assets 
+* plugin: fix the build process on Mac (muEnableISPC, Poco conf)
+
+## [0.0.1-preview.1] - 2020-03-02
+
+### Changed
+* Removing unrelevant files from a package
+
+### Fixed
+* Minor license fix
+
+## [0.0.1-preview] - 2020-02-28
+
+### Changed
+* Converting To Package format
+
