@@ -237,12 +237,48 @@ internal abstract class BaseMeshSyncInspector : UnityEditor.Editor {
         style.fontStyle    = FontStyle.Bold;
         t.foldExportAssets = EditorGUILayout.Foldout(t.foldExportAssets, "Export Assets", true, style);
         if (t.foldExportAssets) {
+            string prevMeshesDir = t.GetExportMeshesDir();
+            string selectedMeshesDir = AssetEditorUtility.NormalizePath(
+                EditorGUIDrawerUtility.DrawFolderSelectorGUI("Export Meshes Dir", "Export Meshes Dir", prevMeshesDir, null)
+            );
+            if (selectedMeshesDir != prevMeshesDir) {
+                if (string.IsNullOrEmpty(selectedMeshesDir) || !AssetEditorUtility.IsPathNormalized(selectedMeshesDir))
+                    Debug.LogError($"[MeshSync] {selectedMeshesDir} is not under Assets. Ignoring.");
+                else
+                    t.SetExportMeshesDir(selectedMeshesDir);
+            }
+
+            string prevMaterialsDir = t.GetExportMaterialsDir();
+            string selectedMaterialsDir = AssetEditorUtility.NormalizePath(
+                EditorGUIDrawerUtility.DrawFolderSelectorGUI("Export Materials Dir", "Export Materials Dir", prevMaterialsDir, null)
+            );
+            if (selectedMaterialsDir != prevMaterialsDir) {
+                if (string.IsNullOrEmpty(selectedMaterialsDir) || !AssetEditorUtility.IsPathNormalized(selectedMaterialsDir))
+                    Debug.LogError($"[MeshSync] {selectedMaterialsDir} is not under Assets. Ignoring.");
+                else
+                    t.SetExportMaterialsDir(selectedMaterialsDir);
+            }
+
+            string prevPrefabDir = t.GetExportPrefabDir();
+            string selectedPrefabDir = AssetEditorUtility.NormalizePath(
+                EditorGUIDrawerUtility.DrawFolderSelectorGUI("Export Prefab Dir", "Export Prefab Dir", prevPrefabDir, null)
+            );
+            if (selectedPrefabDir != prevPrefabDir) {
+                if (string.IsNullOrEmpty(selectedPrefabDir) || !AssetEditorUtility.IsPathNormalized(selectedPrefabDir))
+                    Debug.LogError($"[MeshSync] {selectedPrefabDir} is not under Assets. Ignoring.");
+                else
+                    t.SetExportPrefabDir(selectedPrefabDir);
+            }
+
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Export Meshes", GUILayout.Width(160.0f)))
                 t.ExportMeshes();
 
             if (GUILayout.Button("Export Materials", GUILayout.Width(160.0f)))
                 t.ExportMaterials();
+
+            if (GUILayout.Button("Export Prefabs", GUILayout.Width(160.0f)))
+                t.ExportPrefabs();
             GUILayout.EndHorizontal();
         }
 

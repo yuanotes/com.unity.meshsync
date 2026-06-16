@@ -7,7 +7,10 @@ internal static class MeshSyncConstants {
 
     internal const string PACKAGE_NAME = "com.unity.meshsync";
 
-    internal const string DEFAULT_ASSETS_PATH = "Assets/MeshSyncAssets";
+    internal const string DEFAULT_ASSETS_PATH    = "Assets/MeshSyncAssets";
+    internal const string DEFAULT_MESHES_PATH    = "Assets/MeshSyncAssets/Meshes";
+    internal const string DEFAULT_MATERIALS_PATH = "Assets/MeshSyncAssets/Materials";
+    internal const string DEFAULT_PREFABS_PATH   = "Assets/MeshSyncPrefabs";
 
     #region Material properties
 

@@ -258,6 +258,10 @@ partial class MeshSyncServer {
         base.AfterUpdateScene();
 
         CurrentPropertiesState = PropertiesState.Received;
+
+#if UNITY_EDITOR
+        WarnDuplicatePrefabExportNames();
+#endif
     }
 
 #if UNITY_EDITOR

@@ -204,6 +204,30 @@ public abstract partial class BaseMeshSync : MonoBehaviour, IObservable<MeshSync
         m_assetsFolder = folder;
     }
 
+    internal string GetExportMeshesDir() {
+        return string.IsNullOrEmpty(m_exportMeshesDir) ? MeshSyncConstants.DEFAULT_MESHES_PATH : m_exportMeshesDir;
+    }
+
+    public void SetExportMeshesDir(string folder) {
+        m_exportMeshesDir = folder == null ? string.Empty : folder.Replace('\\', '/');
+    }
+
+    internal string GetExportMaterialsDir() {
+        return string.IsNullOrEmpty(m_exportMaterialsDir) ? MeshSyncConstants.DEFAULT_MATERIALS_PATH : m_exportMaterialsDir;
+    }
+
+    public void SetExportMaterialsDir(string folder) {
+        m_exportMaterialsDir = folder == null ? string.Empty : folder.Replace('\\', '/');
+    }
+
+    internal string GetExportPrefabDir() {
+        return string.IsNullOrEmpty(m_exportPrefabDir) ? MeshSyncConstants.DEFAULT_PREFABS_PATH : m_exportPrefabDir;
+    }
+
+    public void SetExportPrefabDir(string folder) {
+        m_exportPrefabDir = folder == null ? string.Empty : folder.Replace('\\', '/');
+    }
+
     internal Transform GetRootObject() {
         return m_rootObject;
     }
@@ -397,11 +421,15 @@ public abstract partial class BaseMeshSync : MonoBehaviour, IObservable<MeshSync
 
     //----------------------------------------------------------------------------------------------------------------------    
     private void MakeSureAssetDirectoryExists() {
+        MakeSureDirectoryExists(m_assetsFolder);
+    }
+
+    private void MakeSureDirectoryExists(string folder) {
 #if UNITY_EDITOR
-        if (Directory.Exists(m_assetsFolder))
+        if (Directory.Exists(folder))
             return;
 
-        Directory.CreateDirectory(m_assetsFolder);
+        Directory.CreateDirectory(folder);
         AssetDatabase.Refresh();
 #endif
     }
@@ -2766,18 +2794,28 @@ public abstract partial class BaseMeshSync : MonoBehaviour, IObservable<MeshSync
     }
 
     public void ExportMaterials(bool overwrite = true, bool useExistingOnes = false) {
-        MakeSureAssetDirectoryExists();
+        string basePath = GetExportMaterialsDir();
+        MakeSureDirectoryExists(basePath);
 
         // need to avoid filename collision
         Misc.UniqueNameGenerator nameGenerator = new Misc.UniqueNameGenerator();
-        string                   basePath      = m_assetsFolder;
 
         bool needSaveAssets = false;
         Func<Material, Material> doExport = (Material mat) => {
-            if (mat == null || IsAsset(mat))
+            if (mat == null)
                 return mat;
 
-            string   dstPath  = string.Format("{0}/{1}.mat", basePath, nameGenerator.Gen(mat.name));
+            if (IsAsset(mat)) {
+                string currentPath = Path.GetFullPath(basePath);
+                string existingPath = Path.GetFullPath(AssetDatabase.GetAssetPath(mat));
+                if (IsSubfolder(currentPath, existingPath)) {
+                    EditorUtility.SetDirty(mat);
+                    needSaveAssets = true;
+                    return mat;
+                }
+            }
+
+            string   dstPath  = string.Format("{0}/{1}.mat", basePath, MakeUniqueExportFileName(nameGenerator, mat.name));
             Material existing = AssetDatabase.LoadAssetAtPath<Material>(dstPath);
             if (overwrite || existing == null) {
                 mat = Misc.OverwriteOrCreateAsset(mat, dstPath);
@@ -2803,14 +2841,20 @@ public abstract partial class BaseMeshSync : MonoBehaviour, IObservable<MeshSync
     }
 
     private bool IsSubfolder(string parentPath, string childPath) {
-        Uri           parentUri = new Uri(parentPath);
-        DirectoryInfo childUri  = new DirectoryInfo(childPath).Parent;
-        while (childUri != null) {
-            if (new Uri(childUri.FullName) == parentUri) return true;
-            childUri = childUri.Parent;
-        }
+        if (string.IsNullOrEmpty(parentPath) || string.IsNullOrEmpty(childPath))
+            return false;
 
-        return false;
+        string normalizedParent = Path.GetFullPath(parentPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string normalizedChildDirectory = Path.GetDirectoryName(Path.GetFullPath(childPath));
+        if (string.IsNullOrEmpty(normalizedChildDirectory))
+            return false;
+
+        normalizedChildDirectory = normalizedChildDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        if (string.Equals(normalizedChildDirectory, normalizedParent, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        string parentPrefix = normalizedParent + Path.DirectorySeparatorChar;
+        return normalizedChildDirectory.StartsWith(parentPrefix, StringComparison.OrdinalIgnoreCase);
     }
 
     internal virtual void ClearInstancePrefabs() {
@@ -2832,8 +2876,9 @@ public abstract partial class BaseMeshSync : MonoBehaviour, IObservable<MeshSync
         m_prefabDict.Clear();
     }
 
-    private void Export(KeyValuePair<string, EntityRecord> kvp, bool overwrite, bool useExistingOnes, string basePath, MeshSyncPlayerConfig config,
+    private bool Export(KeyValuePair<string, EntityRecord> kvp, bool overwrite, bool useExistingOnes, string basePath, MeshSyncPlayerConfig config,
         Misc.UniqueNameGenerator nameGenerator) {
+        bool needSaveAssets = false;
         Mesh mesh = kvp.Value.mesh;
 
         if (mesh == null)
@@ -2841,16 +2886,19 @@ public abstract partial class BaseMeshSync : MonoBehaviour, IObservable<MeshSync
             //{
             //    Debug.LogError($"Mesh was lost on {kvp.Key}");
             //}
-            return;
+            return false;
 
         // If this is an asset but in another folder, still save it, if it changed:
         if (IsAsset(mesh)) {
-            string currentPath  = Path.GetFullPath(GetAssetsFolder());
+            string currentPath  = Path.GetFullPath(basePath);
             string existingPath = Path.GetFullPath(AssetDatabase.GetAssetPath(mesh));
-            if (IsSubfolder(currentPath, existingPath)) return;
+            if (IsSubfolder(currentPath, existingPath)) {
+                EditorUtility.SetDirty(mesh);
+                return true;
+            }
         }
 
-        string dstPath  = string.Format("{0}/{1}.asset", basePath, nameGenerator.Gen(mesh.name));
+        string dstPath  = string.Format("{0}/{1}.asset", basePath, MakeUniqueExportFileName(nameGenerator, mesh.name));
         Mesh   existing = AssetDatabase.LoadAssetAtPath<Mesh>(dstPath);
         if (overwrite || existing == null) {
             mesh           = Misc.OverwriteOrCreateAsset(mesh, dstPath);
@@ -2862,25 +2910,111 @@ public abstract partial class BaseMeshSync : MonoBehaviour, IObservable<MeshSync
 
             if (config.Logging)
                 Debug.Log("exported mesh " + dstPath);
+
+            needSaveAssets = true;
         }
         else if (useExistingOnes && existing != null) {
             kvp.Value.mesh = existing;
         }
+
+        return needSaveAssets;
+    }
+
+    public void ExportPrefabs() {
+#if UNITY_EDITOR
+        string prefabDir = GetExportPrefabDir();
+        if (string.IsNullOrEmpty(prefabDir) || !prefabDir.StartsWith("Assets")) {
+            Debug.LogError("[MeshSync] Export Prefab Dir must be under Assets.");
+            return;
+        }
+
+        Transform root = GetRootObject();
+        if (root == null) {
+            Debug.LogError("[MeshSync] Root Object is null.");
+            return;
+        }
+
+        MakeSureDirectoryExists(prefabDir);
+
+        ExportMeshes();
+        ExportMaterials();
+
+        int created = 0;
+        int skipped = 0;
+        for (int i = 0; i < root.childCount; ++i) {
+            Transform child = root.GetChild(i);
+            if (child == null)
+                continue;
+
+            string prefabPath = Path.Combine(prefabDir, MakeExportFileName(child.name) + ".prefab").Replace('\\', '/');
+            GameObject existingPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (existingPrefab != null) {
+                ++skipped;
+                continue;
+            }
+
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(child.gameObject, prefabPath);
+            if (prefab != null)
+                ++created;
+            else
+                Debug.LogError($"[MeshSync] Failed to export prefab: {prefabPath}");
+        }
+
+        if (created > 0)
+            AssetDatabase.SaveAssets();
+        Debug.Log($"[MeshSync] Export Prefabs completed. Created: {created}, Skipped existing: {skipped}");
+#else
+        Debug.LogWarning("[MeshSync] Export Prefabs is only available in the Unity Editor.");
+#endif
+    }
+
+    private static string MakeUniqueExportFileName(Misc.UniqueNameGenerator nameGenerator, string name) {
+        return MakeExportFileName(nameGenerator.Gen(name));
+    }
+
+    private static string MakeExportFileName(string name) {
+        string fileName = Misc.SanitizeFileName(name ?? string.Empty).Trim();
+        return string.IsNullOrEmpty(fileName) ? "Unnamed" : fileName;
+    }
+
+    internal void WarnDuplicatePrefabExportNames() {
+        Transform root = GetRootObject();
+        if (root == null)
+            return;
+
+        Dictionary<string, string> firstObjectNameByPrefabPath = new Dictionary<string, string>();
+        for (int i = 0; i < root.childCount; ++i) {
+            Transform child = root.GetChild(i);
+            if (child == null)
+                continue;
+
+            string prefabPath = Path.Combine(GetExportPrefabDir(), MakeExportFileName(child.name) + ".prefab").Replace('\\', '/');
+            if (firstObjectNameByPrefabPath.TryGetValue(prefabPath, out string firstObjectName)) {
+                Debug.LogWarning(
+                    $"[MeshSync] Root objects '{firstObjectName}' and '{child.name}' export to the same prefab path '{prefabPath}'. " +
+                    "Only the first missing prefab can be created for that path; rename one of the root objects to avoid sharing it.",
+                    this);
+                continue;
+            }
+
+            firstObjectNameByPrefabPath.Add(prefabPath, child.name);
+        }
     }
 
     public void ExportMeshes(bool overwrite = true, bool useExistingOnes = false) {
-        MakeSureAssetDirectoryExists();
+        string basePath = GetExportMeshesDir();
+        MakeSureDirectoryExists(basePath);
 
         // need to avoid filename collision
         Misc.UniqueNameGenerator nameGenerator = new Misc.UniqueNameGenerator();
-        string                   basePath      = GetAssetsFolder();
 
         // export client meshes
         MeshSyncPlayerConfig config = GetConfigV();
+        bool needSaveAssets = false;
 
-        foreach (KeyValuePair<string, EntityRecord> kvp in m_clientObjects) Export(kvp, overwrite, useExistingOnes, basePath, config, nameGenerator);
+        foreach (KeyValuePair<string, EntityRecord> kvp in m_clientObjects) needSaveAssets |= Export(kvp, overwrite, useExistingOnes, basePath, config, nameGenerator);
 
-        foreach (KeyValuePair<string, EntityRecord> kvp in m_clientInstancedEntities) Export(kvp, overwrite, useExistingOnes, basePath, config, nameGenerator);
+        foreach (KeyValuePair<string, EntityRecord> kvp in m_clientInstancedEntities) needSaveAssets |= Export(kvp, overwrite, useExistingOnes, basePath, config, nameGenerator);
 
         // replace existing meshes
         int n = 0;
@@ -2906,7 +3040,7 @@ public abstract partial class BaseMeshSync : MonoBehaviour, IObservable<MeshSync
             ++n;
         }
 
-        if (n > 0)
+        if (needSaveAssets || n > 0)
             AssetDatabase.SaveAssets();
     }
 
@@ -3123,7 +3257,10 @@ public abstract partial class BaseMeshSync : MonoBehaviour, IObservable<MeshSync
     // will keep the synced resources as edits are performed on the DCC tool side.
     // For SceneCachePlayer, m_assetsFolder is needed only when loading the file, so it should be passed as a parameter
 
-    [SerializeField] private string    m_assetsFolder = null; // Always starts with "Assets"
+    [SerializeField] private string    m_assetsFolder       = null; // Always starts with "Assets"
+    [SerializeField] private string    m_exportMeshesDir    = MeshSyncConstants.DEFAULT_MESHES_PATH; // Always starts with "Assets"
+    [SerializeField] private string    m_exportMaterialsDir = MeshSyncConstants.DEFAULT_MATERIALS_PATH; // Always starts with "Assets"
+    [SerializeField] private string    m_exportPrefabDir    = MeshSyncConstants.DEFAULT_PREFABS_PATH; // Always starts with "Assets"
     [SerializeField] private Transform m_rootObject;
 
     [Obsolete] [SerializeField] private bool m_usePhysicalCameraParams = true;
